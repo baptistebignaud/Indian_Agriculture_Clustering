@@ -1,0 +1,58 @@
+version: '3.9'
+services:
+   scor_challenge_db:
+      restart: always
+      image: mysql:5.7
+      container_name: db
+      environment:
+         MYSQL_ROOT_PASSWORD: ${ROOT_PWD}
+         MYSQL_DATABASE: ${DB}
+         MYSQL_USER: ${USERDB}
+         MYSQL_PASSWORD: ${USER_PWD}
+      ports:
+         - '6033:3306'
+      volumes:
+         - ./:/db
+      expose:
+         - 3306
+      networks:
+         - scor_network
+      command:
+         [
+            '--character-set-server=utf8mb4',
+            '--collation-server=utf8mb4_unicode_ci',
+         ]
+
+   scor_challenge:
+      tty: true
+      depends_on:
+         # - db
+         - scor_challenge_db
+      build: .
+      ports:
+         - '4000:4000'
+         - '8888:8888' #Notebook port
+         - '6006:6006' # Tensorboard
+
+      container_name: 'scor_challenge_notebook'
+      volumes:
+         - ./:/appli
+
+      networks:
+         - scor_network
+      environment:
+         HOST: ${HOST}
+         ROOT_PWD: ${ROOT_PWD}
+         DB: ${DB}
+         USER: ${USERDB}
+         USER_PWD: ${USER_PWD}
+
+      deploy:
+         resources:
+            reservations:
+               devices:
+                  - capabilities: [gpu]
+                    driver: nvidia
+
+networks:
+   scor_network:

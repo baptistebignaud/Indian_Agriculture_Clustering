@@ -1,0 +1,8 @@
+# Ignore notebooks checkpoints
+/notebooks/.ipynb_checkpoints
+/pyproject.toml
+# .gitignore
+/utile/__pycache__
+/__pycache__
+/image_data
+/material/logs
